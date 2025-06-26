@@ -1,4 +1,6 @@
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +15,22 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
+
+origins = [
+    "http://localhost:5173",  # Vite
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",  # React
+]
+
 app = FastAPI(lifespan=lifespan)
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Разрешить указанные источники
+    allow_credentials=True,
+    allow_methods=["*"],     # Разрешить все методы (GET, POST и т.д.)
+    allow_headers=["*"],     # Разрешить любые заголовки
+)
 
 app.include_router(user_router, prefix="/api")

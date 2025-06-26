@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import declarative_base
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -9,3 +10,14 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(150), unique=True, nullable=False)
     password = Column(String(128), nullable=False)
+
+
+class Message(Base):
+    __tablename__ = "chats"
+
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(String(255), nullable=False)
+    created = Column(DateTime, default=datetime.utcnow)
+
+    sender_id = Column(Integer, ForeignKey("users.id"))
+    sender = relationship("User", back_populates="messages")
