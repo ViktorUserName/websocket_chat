@@ -6,8 +6,9 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from api.models import Base
+from api.views.messages import messages_router
 from backend.db_config import engine, get_session
-from api.views import router as user_router
+from api.views.users import user_router as user_router
 
 
 @asynccontextmanager
@@ -19,7 +20,7 @@ async def lifespan(app: FastAPI):
 origins = [
     "http://localhost:5173",  # Vite
     "http://127.0.0.1:5173",
-    "http://localhost:3000",  # React
+    "http://localhost:",  # React
 ]
 
 app = FastAPI(lifespan=lifespan)
@@ -34,3 +35,4 @@ app.add_middleware(
 )
 
 app.include_router(user_router, prefix="/api")
+app.include_router(messages_router, prefix="/api")

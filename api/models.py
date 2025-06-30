@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 
 Base = declarative_base()
@@ -10,6 +10,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(150), unique=True, nullable=False)
     password = Column(String(128), nullable=False)
+
+    messages = relationship("Message", back_populates="sender")
 
 
 class Message(Base):
