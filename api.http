@@ -1,18 +1,18 @@
-POST localhost:8010/api/users HTTP/1.1
+POST localhost:8015/api/users HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "User2",
+  "username": "User3",
   "password": "admin123"
 }
 
 ###
 
-POST localhost:8020/api/users/login HTTP/1.1
+POST localhost:8015/api/users/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "User2",
+  "username": "User3",
   "password": "admin123"
 }
 
@@ -33,16 +33,15 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8010/api/messages HTTP/1.1
+GET http://localhost:8050/api/messages HTTP/1.1
 Content-Type: application/json
 
 ###
 
-POST http://localhost:8010/api/messages HTTP/1.1
+POST http://localhost:8015/api/messages/ HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVc2VyMyIsImV4cCI6MTc1MTMyNjE5NH0.9zL-Gm6a6aVSjGBgjRmTXQqlPY7x0syto6Graw_E8lg
 
 {
-  "content": "first message",
-  "sender_id": 1
-
+  "content": "dasda222sdsadsadsad"
 }

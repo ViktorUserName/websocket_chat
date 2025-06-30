@@ -1,15 +1,21 @@
 from http.client import HTTPException
 from os import access
+from typing import Annotated
+from api.serializers.user import Token
 
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import (
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm,
+    SecurityScopes,
+)
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.models import User
 from backend.db_config import get_session
 
-from api.serializers.user import UserRead, UserCreate, UserLogin
+from api.serializers.user import UserRead, UserCreate, UserLogin, oauth2_scheme
 from utils.jwt_token import create_access_token
 
 user_router = APIRouter(prefix="/users", tags=["users"])
@@ -47,7 +53,7 @@ async def create_user(data: UserCreate, session: AsyncSession = Depends(get_sess
 
 #
 
-@user_router.post("/login")
+@user_router.post("/login", response_model=Token)
 async def login_user(data: UserLogin, session: AsyncSession = Depends(get_session)):
     try:
         result = await session.execute(select(User).filter_by(username=data.username))
@@ -78,4 +84,14 @@ async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
     return user
 
 # -----------
+
+
+
+
+
+
+
+
+
+
 
