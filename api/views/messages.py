@@ -25,7 +25,7 @@ async def get_messages(session: AsyncSession = Depends(get_session)):
     return messages
 
 
-@messages_router.post('/', response_model=MessageRead)
+@messages_router.post('/`', response_model=MessageRead)
 async def create_message(data: MessageCreate, session: AsyncSession = Depends(get_session)):
     new_message = Message(content=data.content, sender_id=data.sender_id)
     session.add(new_message)
