@@ -17,7 +17,9 @@ class UserRead(BaseModel):
 
 class UserLogin(BaseModel):
     username: str
-    password: str
+
+class UserInDB(UserLogin):
+    hashed_password: str
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="api/users/login",
@@ -27,3 +29,6 @@ oauth2_scheme = OAuth2PasswordBearer(
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None

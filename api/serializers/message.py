@@ -5,7 +5,7 @@ from api.serializers.user import UserRead
 
 class MessageCreate(BaseModel):
     content: str
-    sender_id: int
+
 
 
 class MessageUpdate(BaseModel):

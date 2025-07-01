@@ -1,46 +1,74 @@
-from http.client import HTTPException
-from os import access
-from typing import Annotated
-from api.serializers.user import Token
-
-from fastapi import APIRouter, Depends
-from fastapi.security import (
-    OAuth2PasswordBearer,
-    OAuth2PasswordRequestForm,
-    SecurityScopes,
-)
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import timedelta
+from typing import Optional
 
 from api.models import User
+from api.serializers.user import (Token, UserCreate, UserRead)
 from backend.db_config import get_session
-
-from api.serializers.user import UserRead, UserCreate, UserLogin, oauth2_scheme
-from utils.jwt_token import create_access_token
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import (OAuth2PasswordBearer, OAuth2PasswordRequestForm,
+                              )
+from jose import JWTError, jwt
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from utils.jwt_token import (ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM,
+                             SECRET_KEY, create_access_token)
 
 user_router = APIRouter(prefix="/users", tags=["users"])
-
-@user_router.get("/ping")
-async def ping():
-    return {"ping": "pong"}
 
 
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def hash_password(password: str):
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login")
+
+
+def get_password_hash(password):
     return pwd_context.hash(password)
+
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
+async def g(session: AsyncSession, username: str, password: str) -> Optional[User]:
+    result = await session.execute(select(User).where(User.username == username))
+    user = result.scalar_one_or_none()
+    if not user:
+        return None
+    if not verify_password(password, user.password):
+        return None
+    return user
 
+async def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    session: AsyncSession = Depends(get_session)
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    result = await session.execute(select(User).where(User.username == username))
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        raise credentials_exception
+
+    return user
 
 @user_router.post("/", response_model=UserCreate)
 async def create_user(data: UserCreate, session: AsyncSession = Depends(get_session)):
     try:
-        hashed_password = hash_password(data.password)
+        hashed_password = get_password_hash(data.password)
         new_user = User(username=data.username, password=hashed_password)
         session.add(new_user)
         await session.commit()
@@ -54,21 +82,23 @@ async def create_user(data: UserCreate, session: AsyncSession = Depends(get_sess
 #
 
 @user_router.post("/login", response_model=Token)
-async def login_user(data: UserLogin, session: AsyncSession = Depends(get_session)):
-    try:
-        result = await session.execute(select(User).filter_by(username=data.username))
-        user = result.scalar_one_or_none()
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: AsyncSession = Depends(get_session)
+):
+    user = await authenticate_user(session, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-        if not verify_password(data.password, user.password):
-            raise HTTPException(status_code=404, detail="Incorrect password")
-
-        access_token = create_access_token(data={"sub": user.username})
-        return {"access_token": access_token, "token_type": "bearer"}
-    except Exception as e:
-        print(f'problem with creating user: {e}')
-        raise e
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
 
 
 
