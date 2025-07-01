@@ -17,6 +17,7 @@ class UserRead(BaseModel):
 
 class UserLogin(BaseModel):
     username: str
+    password: str
 
 class UserInDB(UserLogin):
     hashed_password: str

@@ -1,24 +1,24 @@
-POST localhost:8015/api/users HTTP/1.1
+POST localhost:8040/api/users HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "newUs",
+  "username": "newUs1",
   "password": "admin123"
 }
 
 ###
 
-POST localhost:8018/api/users/login HTTP/1.1
+POST localhost:8040/api/users/login HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "newUs",
+  "username": "newUs1",
   "password": "admin123"
 }
 
 ###
 
-GET http://localhost:8010/api/users/ HTTP/1.1
+GET http://localhost:8040/api/users/ HTTP/1.1
 Content-Type: application/json
 
 ###
@@ -40,8 +40,8 @@ Content-Type: application/json
 
 POST http://localhost:8018/api/messages/ HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZXdVcyIsImV4cCI6MTc1MTM5MDUwOX0.8HyqzOLsy6QY7opEB0ii-s5J-w61oUeoycVK5oXZSZA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZXdVczEiLCJleHAiOjE3NTEzOTc5MDZ9.7s2FVB8ap0mmh8rO8v57D6GmQKu_OM4tM-avXOLxRxM
 
 {
-  "content": "new comment"
+  "content": "new comddment"
 }

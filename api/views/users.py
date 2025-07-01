@@ -2,7 +2,7 @@ from datetime import timedelta
 from typing import Optional
 
 from api.models import User
-from api.serializers.user import (Token, UserCreate, UserRead)
+from api.serializers.user import (Token, UserCreate, UserRead, UserLogin)
 from backend.db_config import get_session
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import (OAuth2PasswordBearer, OAuth2PasswordRequestForm,
@@ -30,7 +30,7 @@ def get_password_hash(password):
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-async def g(session: AsyncSession, username: str, password: str) -> Optional[User]:
+async def authenticate_user(session: AsyncSession, username: str, password: str) -> Optional[User]:
     result = await session.execute(select(User).where(User.username == username))
     user = result.scalar_one_or_none()
     if not user:
@@ -83,10 +83,10 @@ async def create_user(data: UserCreate, session: AsyncSession = Depends(get_sess
 
 @user_router.post("/login", response_model=Token)
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    data: UserLogin,
     session: AsyncSession = Depends(get_session)
 ):
-    user = await authenticate_user(session, form_data.username, form_data.password)
+    user = await authenticate_user(session, data.username, data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
