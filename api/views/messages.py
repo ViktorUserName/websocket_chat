@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy import desc
 from sqlalchemy.future import select
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,10 +21,10 @@ async def ping():
 @messages_router.get('/', response_model=list[MessageRead])
 async def get_messages(session: AsyncSession = Depends(get_session)):
     result = await session.execute(
-        select(Message).options(joinedload(Message.sender))
+        select(Message).options(joinedload(Message.sender)).order_by(desc(Message.id))
     )
     messages = result.scalars().all()
-    return messages
+    return messages[:3]
 
 
 # @messages_router.post('/', response_model=MessageRead)
