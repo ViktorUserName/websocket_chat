@@ -8,7 +8,7 @@ Content-Type: application/json
 
 ###
 
-POST localhost:8040/api/users/login HTTP/1.1
+POST localhost:8025/api/users/login HTTP/1.1
 Content-Type: application/json
 
 {
@@ -38,9 +38,19 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8018/api/messages/ HTTP/1.1
+POST http://localhost:8025/api/messages/ HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZXdVczEiLCJleHAiOjE3NTEzOTc5MDZ9.7s2FVB8ap0mmh8rO8v57D6GmQKu_OM4tM-avXOLxRxM
+Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZXdVczEiLCJleHAiOjE3NTE0MDE5NjV9.7xKBJ47VyYwiR2LBdXYLuAPYMySlrprv_vPsiPbh5z8
+
+{
+  "content": "new comddment"
+}
+
+###
+
+POST http://localhost:8040/api/messages/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZXdVczEiLCJleHAiOjE3NTE0MDEwNzd9.pxol62H6Lsif--DufY6UcMG1ds3EY0FwTZPVC1hTfp4
 
 {
   "content": "new comddment"
