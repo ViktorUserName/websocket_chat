@@ -5,6 +5,7 @@ from api.models import User
 from api.serializers.user import (Token, UserCreate, UserRead, UserLogin)
 from backend.db_config import get_session
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie
+from fastapi.responses import JSONResponse
 from fastapi.security import (OAuth2PasswordBearer, OAuth2PasswordRequestForm,
                               )
 from jose import JWTError, jwt
@@ -12,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from utils.jwt_token import (ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM,
                              SECRET_KEY, create_access_token)
+from utils.post_message_permission import get_current_user
 
 user_router = APIRouter(prefix="/users", tags=["users"])
 
@@ -75,25 +77,29 @@ async def login_for_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
 
+    response = JSONResponse(content={
+        "access_token": access_token,
+        "token_type": "bearer",
+    })
+
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES*60,
         expires=ACCESS_TOKEN_EXPIRE_MINUTES*60,
-        secure=False,
-        samesite="Lax",
-        path='/'
+        secure=True,
+        samesite="none",
+        path='/',
 
     )
 
-    response_message = {
-        "access_token": access_token,
-        "token_type": "bearer",
-        'cookie': response.headers.get('Set-Cookie')
-    }
-
-    return response_message
+    return response
+    # response_message = {
+    #     "access_token": access_token,
+    #     "token_type": "bearer",
+    #     'cookie': response.headers.get('Set-Cookie')
+    # }
 
 
 
@@ -103,12 +109,19 @@ async def get_users(session: AsyncSession = Depends(get_session)):
     users = result.scalars().all()
     return users
 
+
+@user_router.get("/me", response_model=UserRead)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
 @user_router.get("/{user_id}", response_model=UserRead)
 async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
     user = await session.get(User, user_id)
     return user
 
 # -----------
+
 
 
 

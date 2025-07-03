@@ -8,7 +8,7 @@ Content-Type: application/json
 
 ###
 
-POST localhost:8025/api/users/login HTTP/1.1
+POST localhost:8012/api/users/login HTTP/1.1
 Content-Type: application/json
 
 {
@@ -55,3 +55,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZXdVczEiL
 {
   "content": "new comddment"
 }
+
+###
+
+GET http://localhost:8012/api/users/me HTTP/1.1
+Content-Type: application/json
+Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZXdVczEiLCJleHAiOjE3NTE1NzQzNDR9.IQ_VUNdOnIGv4889rDUfCM0Oxb_r6rudbOGAlsibW_4
