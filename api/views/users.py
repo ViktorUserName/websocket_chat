@@ -85,7 +85,7 @@ async def login_for_access_token(
     response.set_cookie(
         key="access_token",
         value=access_token,
-        httponly=True,
+        httponly=False,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES*60,
         expires=ACCESS_TOKEN_EXPIRE_MINUTES*60,
         secure=True,
